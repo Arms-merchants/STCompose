@@ -1,11 +1,23 @@
 package com.example.stcompose.brick
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -15,8 +27,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.stcompose.ui.theme.BodyColor
 import com.example.stcompose.R
+import com.example.stcompose.ui.theme.BodyColor
 import com.example.stcompose.ui.theme.ScreenBackground
 
 /**
@@ -30,6 +42,10 @@ fun GameBody(
     clickable: Clickable,
     screen: @Composable () -> Unit
 ) {
+    //这里应该就是重组导致clickable丢失导致的问题，用
+    val clickableValue by remember {
+        mutableStateOf(clickable)
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -40,6 +56,7 @@ fun GameBody(
             )
             .padding(20.dp)
     ) {
+        //上半部分的游戏屏幕
         Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             Box(
                 modifier = Modifier
@@ -89,7 +106,7 @@ fun GameBody(
             }
         }
         Spacer(modifier = Modifier.height(30.dp))
-
+        //设置按钮
         val SettingText = @Composable { text: String, modifier: Modifier ->
             Text(
                 text = text,
@@ -100,7 +117,6 @@ fun GameBody(
                 fontWeight = FontWeight.Bold
             )
         }
-
         Row {
             SettingText(stringResource(id = R.string.button_sounds), Modifier.weight(1f))
             SettingText(stringResource(id = R.string.button_pause), Modifier.weight(1f))
@@ -113,31 +129,30 @@ fun GameBody(
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 20.dp, end = 20.dp),
-                onClick = { clickable.onMute }
+                onClick = { clickableValue.onMute() }
             )
             GameButton(
                 size = SettingButtonSize, modifier = Modifier
                     .weight(1f)
                     .padding(start = 20.dp, end = 20.dp),
-                onClick = { clickable.onPause }
+                onClick = { clickableValue.onPause() }
             )
             GameButton(
                 size = SettingButtonSize,
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 20.dp, end = 20.dp),
-                onClick = { clickable.onRestart }
+                onClick = { clickableValue.onRestart() }
             )
         }
         Spacer(modifier = Modifier.height(30.dp))
-
+        //游戏操作遥感
         val ButtonText = @Composable { text: String, modifier: Modifier ->
             Text(
                 text = text, modifier = modifier, color = Color.White.copy(alpha = 0.8f),
                 fontSize = 18.sp
             )
         }
-
         Row(
             modifier = Modifier
                 .height(160.dp)
@@ -152,7 +167,7 @@ fun GameBody(
                     modifier = Modifier.align(Alignment.TopCenter),
                     autoInvokeWhenPressed = false,
                     onClick = {
-                        clickable.onMove(Direction.Up)
+                        clickableValue.onMove(Direction.Up)
                     }
                 ) {
                     ButtonText(stringResource(id = R.string.button_up), it)
@@ -162,7 +177,8 @@ fun GameBody(
                     modifier = Modifier.align(Alignment.CenterStart),
                     autoInvokeWhenPressed = true,
                     onClick = {
-                        clickable.onMove(Direction.Left)
+                        Log.e("TAG","GameButton <")
+                        clickableValue.onMove(Direction.Left)
                     }
                 ) {
                     ButtonText(stringResource(id = R.string.button_left), it)
@@ -171,7 +187,9 @@ fun GameBody(
                     size = DirectionButtonSize,
                     modifier = Modifier.align(Alignment.CenterEnd),
                     autoInvokeWhenPressed = true,
-                    onClick = { clickable.onMove(Direction.Right) }
+                    onClick = {
+                        Log.e("TAG","GameButton >")
+                        clickableValue.onMove(Direction.Right) }
                 ) {
                     ButtonText(stringResource(id = R.string.button_right), it)
                 }
@@ -179,12 +197,11 @@ fun GameBody(
                     size = DirectionButtonSize,
                     modifier = Modifier.align(Alignment.BottomCenter),
                     autoInvokeWhenPressed = true,
-                    onClick = { clickable.onMove(Direction.Down) }
+                    onClick = { clickableValue.onMove(Direction.Down) }
                 ) {
                     ButtonText(stringResource(id = R.string.button_down), it)
                 }
             }
-
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -195,7 +212,7 @@ fun GameBody(
                     modifier = Modifier.align(Alignment.CenterEnd),
                     autoInvokeWhenPressed = false,
                     onClick = {
-                        clickable.onRotate
+                        clickableValue.onRotate()
                     }
                 ) {
                     ButtonText(stringResource(id = R.string.button_rotate), it)
@@ -212,4 +229,3 @@ data class Clickable(
     val onPause: () -> Unit,
     val onMute: () -> Unit
 )
-

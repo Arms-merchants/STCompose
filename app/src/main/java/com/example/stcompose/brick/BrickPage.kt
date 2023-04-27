@@ -1,10 +1,18 @@
 package com.example.stcompose.brick
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 
 /**
  *    author : heyueyang
@@ -14,46 +22,76 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
  */
 @Composable
 fun BrickPage() {
-    GameBody()
-}
+    val viewModel = viewModel<GameViewModel>()
+    val state = viewModel.viewState.value
 
-fun DrawScope.drawScreenBorder(
-    topLef: Offset,
-    topRight: Offset,
-    bottomLeft: Offset,
-    bottomRight: Offset
-) {
-    var path = Path().apply {
-        moveTo(topLef.x, topLef.y)
-        lineTo(topRight.x, topRight.y)
-        //不直接链接过去是为了处理阴影的角度不是45度的问题
-        lineTo(
-            topRight.x / 2 + topLef.x / 2,
-            topLef.y + topRight.x / 2 + topLef.x / 2
-        )
-        lineTo(
-            topRight.x / 2 + topLef.x / 2,
-            bottomLeft.y - topRight.x / 2 + topLef.x / 2
-        )
-        lineTo(bottomLeft.x, bottomLeft.y)
-        close()
+    LaunchedEffect(key1 = Unit, block = {
+        while (isActive) {
+            //就是只要当前控件还活着这玩意一直执行，并且控制着自然下落的速度
+            delay(650L - 45 * (state.level - 1))
+            viewModel.dispatch(Action.GameTick)
+        }
+    })
+
+    var isShowTips by remember {
+        mutableStateOf(false)
     }
-    drawPath(path, Color.Black.copy(0.5f))
+    LaunchedEffect(key1 = viewModel.viewState.value.level) {
+        isShowTips = true
+        delay(1000)
+        isShowTips = false
+    }
+    //处理切到后台的情况，自动暂停
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(key1 = Unit) {
+        val observer = object : DefaultLifecycleObserver {
+            override fun onResume(owner: LifecycleOwner) {
+                viewModel.dispatch(Action.Resume)
+            }
 
-    path = Path().apply {
-        moveTo(bottomRight.x, bottomRight.y)
-        lineTo(bottomLeft.x, bottomLeft.y)
-        lineTo(
-            topRight.x / 2 + topLef.x / 2,
-            bottomLeft.y - topRight.x / 2 + topLef.x / 2
-        )
-        lineTo(
-            topRight.x / 2 + topLef.x / 2,
-            topLef.y + topRight.x / 2 + topLef.x / 2
-        )
-        lineTo(topRight.x, topRight.y)
-        close()
+            override fun onPause(owner: LifecycleOwner) {
+                viewModel.dispatch(Action.Pause)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
-    drawPath(path, Color.White.copy(0.5f))
+
+    val clickable = Clickable(
+        onMute = {
+            viewModel.dispatch(Action.Mute)
+        },
+        onMove = { direction ->
+            if (direction == Direction.Up) {
+                viewModel.dispatch(Action.Drop)
+            } else {
+                viewModel.dispatch(Action.Move(direction = direction))
+            }
+        },
+        onPause = {
+            if (viewModel.viewState.value.isPaused) {
+                viewModel.dispatch(Action.Resume)
+            } else {
+                viewModel.dispatch(Action.Pause)
+            }
+        },
+        onRestart = {
+            viewModel.dispatch(Action.Reset)
+        },
+        onRotate = {
+            viewModel.dispatch(Action.Rotate)
+        }
+    )
+    GameBody(clickable = clickable) {
+        GameScreen()
+    }
+    if (isShowTips) {
+        SupPopScreen()
+    }
 }
+
+

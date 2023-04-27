@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.stcompose.ui.theme.BodyColor
@@ -23,11 +24,12 @@ import com.example.stcompose.ui.theme.ScreenBackground
  *    desc   :
  *    version: 1.0
  */
+@Preview()
 @Composable
 fun AppIcon() {
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .background(BodyColor, RoundedCornerShape(50.dp))
             .padding(top = 30.dp)
     ) {
@@ -54,7 +56,7 @@ fun AppIcon() {
                 )
 
                 Text(
-                    text = "TETRIS",
+                    text = "🐷大珊",
                     textAlign = TextAlign.Center,
                     color = BrickSpirit,
                     fontSize = 75.sp,

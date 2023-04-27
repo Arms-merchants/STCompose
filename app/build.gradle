@@ -19,10 +19,28 @@ android {
             useSupportLibrary true
         }
     }
-
+    signingConfigs {
+        debug {
+            storeFile file('test.jks')
+            storePassword 'zxc123456'
+            keyAlias 'business'
+            keyPassword 'zxc1234567'
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+        release {
+            storeFile file('test.jks')
+            storePassword 'zxc123456'
+            keyAlias 'business'
+            keyPassword 'zxc1234567'
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -61,7 +79,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.4.1'
 
     
-    def lifecycle_version = "2.5.1"
+    def lifecycle_version = "2.6.1"
     def arch_version = "2.1.0"
 
     // ViewModel

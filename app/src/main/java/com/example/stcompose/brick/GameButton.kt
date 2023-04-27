@@ -1,5 +1,6 @@
 package com.example.stcompose.brick
 
+import android.util.Log
 import android.view.MotionEvent.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,7 +45,7 @@ fun GameButton(
     modifier: Modifier = Modifier,
     size: Dp,
     onClick: () -> Unit = {},
-    autoInvokeWhenPressed: Boolean = true,
+    autoInvokeWhenPressed: Boolean = false,
     content: @Composable (Modifier) -> Unit = {}
 ) {
     val backgroundShape = RoundedCornerShape(size / 2)
@@ -84,18 +85,19 @@ fun GameButton(
                             ACTION_DOWN -> {
                                 coroutineScope.launch {
                                     //响应新的事件前先把老的停掉---这个去掉也没影响，那这个是做什么？
-                                    /*pressedInteraction.value?.let { oldValue ->
+                                    pressedInteraction.value?.let { oldValue ->
                                         //Remove any old interactions if we didn't fire stop / cancel properly
                                          val interaction = PressInteraction.Cancel(oldValue)
                                          interactionSource.emit(interaction)//通知交互状态的改变，改变显示状态
                                          pressedInteraction.value = null
-                                    }*/
+                                    }
                                     val interaction = PressInteraction.Press(Offset(50f, 50f))
                                     interactionSource.emit(interaction)
                                     pressedInteraction.value = interaction
                                 }
                                 //因为只在一个手势事件中来处理，所以每次要在down中创建新的管道
                                 //延迟300毫秒后，以60毫秒的间隔发送一个Unit
+                                Log.e("TAG",Thread.currentThread().name)
                                 ticker = ticker(initialDelayMillis = 300, delayMillis = 60)
                                 coroutineScope.launch {
                                     ticker.receiveAsFlow()
@@ -104,17 +106,18 @@ fun GameButton(
                             }
                             ACTION_CANCEL, ACTION_UP -> {
                                 coroutineScope.launch {
+                                    Log.e("TAG",Thread.currentThread().name)
                                     pressedInteraction.value?.let {
                                         val interaction = PressInteraction.Cancel(it)
                                         interactionSource.emit(interaction)
                                         pressedInteraction.value = null
                                     }
-                                    //取消定时事件的发送
-                                    ticker.cancel()
-                                    if (it.action == ACTION_UP) {
-                                        //抬起的时候补一个事件
-                                        onClick()
-                                    }
+                                }
+                                //取消定时事件的发送
+                                ticker.cancel()
+                                if (it.action == ACTION_UP) {
+                                    //抬起的时候补一个事件
+                                    onClick()
                                 }
                             }
                             else -> {
