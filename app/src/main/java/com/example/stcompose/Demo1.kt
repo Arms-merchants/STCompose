@@ -138,19 +138,20 @@ fun ShowWeb() {
 
 
 @Composable
-fun Greeting(name: String) {
+fun Greeting(modifier: Modifier = Modifier, name: String) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             //compose中只有padding的概念，根据调用的顺序可以实现原来的外边距和内边距的效果
             .padding(8.dp)
             .border(2.dp, Color.Yellow, shape = RoundedCornerShape(2.dp))
             .background(color = Color.Red)
             .padding(8.dp)
+
     ) {
         Spacer(
             modifier = Modifier
-                .fillMaxSize()
+                .matchParentSize()
                 .background(color = Color.Green)
         )
     }
@@ -178,7 +179,7 @@ fun Greeting(name: String) {
                 .size(50.dp)
                 .background(
                     //背景的渐变效果
-                    brush = verticalGradientBrush1
+                    brush = verticalGradientBrush2
                 )
         ) {
             Text(text = "渐变色", Modifier.align(Alignment.Center))
@@ -202,9 +203,9 @@ val verticalGradientBrush1 = Brush.verticalGradient(
 )
 
 val verticalGradientBrush2 = Brush.verticalGradient(
-    0.3f to Color.Red,
+    0.1f to Color.Red,
     0.3f to Color.Green,
-    0.3f to Color.Blue
+    0.9f to Color.Blue
 )
 
 @Composable
@@ -279,6 +280,8 @@ fun WeightDemo() {
 @Composable
 fun DefaultPreview() {
     StComposeTheme {
-        Greeting("Android")
+        Box(modifier = Modifier.fillMaxSize()) {
+            Greeting(Modifier, "Android")
+        }
     }
 }

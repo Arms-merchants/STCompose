@@ -14,6 +14,9 @@ import java.lang.Integer.min
  *    author : heyueyang
  *    time   : 2023/04/17
  *    desc   : 业务逻辑的处理
+ *    ui发送action viewmodel根据action更新viewState
+ *
+ *
  *    version: 1.0
  */
 class GameViewModel : ViewModel() {

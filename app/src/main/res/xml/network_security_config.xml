@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- 9。0以上可以使用http请求的设置 -->
+    <base-config cleartextTrafficPermitted="true" />
+    <!--debug 模式下信任用户证书 -->
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="user" />
+        </trust-anchors>
+    </debug-overrides>
+
+</network-security-config>

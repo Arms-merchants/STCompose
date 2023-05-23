@@ -19,7 +19,7 @@ private val DarkColorPalette = darkColors(
 )
 
 private val LightColorPalette = lightColors(
-    primary = pink100,
+    primary = ScreenBackground,
     secondary = pink900,
     background = white,
     surface = white850,

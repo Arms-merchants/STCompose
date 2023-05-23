@@ -6,7 +6,7 @@
   <string name="profile">profile</string>
   <string name="cart">cart</string>
 
-
+  <!-- 俄罗斯方块相关的资源 -->
   <string name="body_label">TETRIS</string>
   <string name="game_over_hint">GAME OVER</string>
   <string name="button_rotate">ROTATE</string>
@@ -17,5 +17,23 @@
   <string name="button_sounds">SOUNDS</string>
   <string name="button_pause">PAUSE/RESUME</string>
   <string name="button_reset">START/RESET</string>
+
+  <!-- chat项目相关的资源 -->
+  <string name="emoji_selector_desc">Emoji selector</string>
+  <string name="emoji_selector_bt_desc">Show Emoji selector</string>
+  <string name="attach_photo_desc">Attach Photo</string>
+  <string name="not_available">Functionality currently not available</string>
+  <string name="not_available_subtitle">Grab a beverage and check back later!</string>
+  <string name="attached_image">Attached image</string>
+  <string name="textfield_hint">开始聊吧</string>
+  <string name="emojis_label">表情</string>
+  <string name="stickers_label">贴纸</string>
+  <string name="author_me">me</string>
+  <string name="now">8:30 PM</string>
+
+  <string name="message">消息</string>
+  <string name="contract">通讯录</string>
+  <string name="explore">发现</string>
+
 
 </resources>
