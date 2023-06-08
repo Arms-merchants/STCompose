@@ -1,6 +1,7 @@
 package com.example.stcompose.chat
 
 import android.text.TextUtils
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
@@ -33,9 +35,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -46,6 +50,7 @@ import com.example.stcompose.chat.data.bean.HomeListItemBean
 import com.example.stcompose.chat.model.HomeModel
 import com.example.stcompose.chat.model.HomeUiState
 import com.example.stcompose.chat.ui.view.CommonTopBar
+import com.example.stcompose.chat.utils.filterHtml
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
@@ -64,6 +69,7 @@ import kotlinx.coroutines.delay
 fun ChatHomePage(viewModel: HomeModel = hiltViewModel(), toSearchPage: () -> Unit) {
     val uiState by viewModel.uiState.collectAsState()
     val listData = (uiState as HomeUiState.HasData).homeListData.collectAsLazyPagingItems()
+    val listState = if (listData.itemCount > 0) viewModel.listState else LazyListState()
     val refreshState = rememberSwipeRefreshState(isRefreshing = false)
     Scaffold(
         topBar = {
@@ -79,7 +85,7 @@ fun ChatHomePage(viewModel: HomeModel = hiltViewModel(), toSearchPage: () -> Uni
             refreshState.isRefreshing = listData.loadState.refresh is LoadState.Loading
             when (uiState) {
                 is HomeUiState.HasData -> {
-                    LazyColumn {
+                    LazyColumn(state = listState) {
                         item {
                             (uiState as HomeUiState.HasData).bannerResponse?.let {
                                 HomeBanner(
@@ -88,7 +94,7 @@ fun ChatHomePage(viewModel: HomeModel = hiltViewModel(), toSearchPage: () -> Uni
                                 )
                             }
                         }
-                        items(listData) {
+                        items(listData, key = { message -> message.id }) {
                             if (it != null) {
                                 HomeListItem(item = it)
                             }
@@ -168,7 +174,6 @@ fun BannerIndicator(
             color = Color.White.copy(alpha = 0.8f),
             fontSize = 14.sp
         )
-
         Row(
             Modifier
                 .weight(1f)
@@ -215,14 +220,14 @@ fun HomeListItem(modifier: Modifier = Modifier, item: HomeListItemBean) {
                 .fillMaxWidth()
                 .padding(10.dp)
         ) {
-            val (author, time, title, from, favorite, topTip) = createRefs()
+            val (author, time, title, from, favorite, topTip, cover, desc) = createRefs()
             Text(text = run {
                 if (TextUtils.isEmpty(item.author)) {
                     item.shareUser
                 } else {
                     item.author
                 }
-            }, fontSize = 18.sp, modifier = Modifier.constrainAs(author) {
+            }, fontSize = 12.sp, modifier = Modifier.constrainAs(author) {
                 top.linkTo(parent.top)
                 start.linkTo(parent.start)
             })
@@ -249,25 +254,51 @@ fun HomeListItem(modifier: Modifier = Modifier, item: HomeListItemBean) {
                     top.linkTo(author.top)
                     bottom.linkTo(author.bottom)
                 })
+
+            if (!TextUtils.isEmpty(item.envelopePic)) {
+                AsyncImage(model = item.envelopePic, contentDescription = item.envelopePic,
+                    modifier
+                        .size(100.dp)
+                        .constrainAs(cover) {
+                            top.linkTo(author.bottom, 10.dp)
+                            start.linkTo(parent.start)
+                        }
+                )
+            }
             Text(
-                text = item.title,
+                text = item.title.filterHtml(),
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 textAlign = TextAlign.Start,
                 fontSize = 16.sp, modifier = Modifier
                     .constrainAs(title) {
                         top.linkTo(author.bottom, 10.dp)
-                        start.linkTo(parent.start)
+                        start.linkTo(cover.end, 10.dp, goneMargin = 0.dp)
                         end.linkTo(parent.end)
+                        width = Dimension.fillToConstraints
                     }
-                    .fillMaxWidth()
             )
+            if (!TextUtils.isEmpty(item.desc)) {
+                Text(
+                    text = item.desc,
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    maxLines = 3,
+                    modifier = Modifier.constrainAs(desc) {
+                        start.linkTo(title.start)
+                        end.linkTo(parent.end)
+                        top.linkTo(title.bottom, 2.dp)
+                        width = Dimension.fillToConstraints
+                    }, overflow = TextOverflow.Ellipsis
+                )
+            }
             Text(
                 text = item.superChapterName,
                 fontSize = 12.sp,
                 modifier = Modifier.constrainAs(from) {
-                    top.linkTo(title.bottom, 10.dp)
-                    start.linkTo(title.start)
+                    val topLink = if(TextUtils.isEmpty(item.desc))title.bottom else desc.bottom
+                    top.linkTo(topLink, 10.dp)
+                    start.linkTo(parent.start)
                 })
             Icon(
                 imageVector = Icons.Default.FavoriteBorder,

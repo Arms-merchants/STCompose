@@ -81,13 +81,14 @@ fun MainBottomBar(navController: NavController) {
                 onClick = {
                     val route = bottomBean.route
                     navController.navigate(route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
                         launchSingleTop = true
                         restoreState = true
-                    }
 
+                        popUpTo(BottomBean.Home.route) {
+                            saveState = true
+                        }
+
+                    }
                 },
                 icon = {
                     Icon(

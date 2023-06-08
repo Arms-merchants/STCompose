@@ -80,9 +80,9 @@ android {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.8.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
-    implementation 'androidx.activity:activity-compose:1.4.0'
+    implementation (libs.androidx.core.ktx)
+    implementation (libs.androidx.lifecycle.runtime.ktx)
+    implementation (libs.androidx.activity.compose)
     implementation "androidx.compose.ui:ui:$compose_ui_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_ui_version"
     implementation 'androidx.compose.material:material:1.2.0'
@@ -107,27 +107,29 @@ dependencies {
     // ViewModel utilities for Compose
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version"
     //navigation-compose版本
-    implementation "androidx.navigation:navigation-compose:2.5.3"
+    implementation(libs.androidx.navigation.compose)
 
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
 
     implementation(libs.hilt.navigation.compose)
-    implementation "com.google.dagger:hilt-android:2.44.2"
+    //implementation "com.google.dagger:hilt-android:2.44.2"
+    implementation(libs.hilt.android)
     //ksp 这个玩意的版本有问题。。。
-    kapt "com.google.dagger:hilt-compiler:2.44.2"
+    //kapt "com.google.dagger:hilt-compiler:2.44.2"
+    kapt(libs.hilt.android.compiler)
 
     // pager
-    implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
+    implementation(libs.accompanist.pager)
 
     // swiperefresh
-    implementation "com.google.accompanist:accompanist-swiperefresh:$accompanist_version"
+    implementation(libs.accompanist.swiperefresh)
 
     // system ui controller
-    implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"
+    implementation(libs.accompanist.systemUi)
 
     // flow
-    implementation "com.google.accompanist:accompanist-flowlayout:$accompanist_version"
+    implementation(libs.accompanist.flowlayout)
 
     // insets
     implementation "com.google.accompanist:accompanist-insets-ui:$accompanist_version"
@@ -137,6 +139,9 @@ dependencies {
 
     //paging
     implementation(libs.androidx.paging.compose)
+
+    //webview
+    implementation(libs.accompanist.webview)
 
     //Test
     testImplementation 'junit:junit:4.13.2'

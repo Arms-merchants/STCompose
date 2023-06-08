@@ -1,5 +1,6 @@
 package com.example.stcompose.chat.model
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -109,4 +110,5 @@ class HomeModel @Inject internal constructor(
         }
     }
 
+    val listState = LazyListState()
 }

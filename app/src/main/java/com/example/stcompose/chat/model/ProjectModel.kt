@@ -1,10 +1,18 @@
 package com.example.stcompose.chat.model
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.example.stcompose.chat.data.ProjectRepository
+import com.example.stcompose.chat.data.bean.HomeListItemBean
 import com.example.stcompose.chat.data.bean.ProjectTabItemBean
+import com.example.stcompose.chat.paging.ProjectSource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -79,13 +87,23 @@ class ProjectModel @Inject internal constructor(
         getTabData()
     }
 
-    fun getTabData() {
+    private fun getTabData() {
+        Log.e("TAG","getTabData")
         viewModelScope.launch {
+            Log.e("TAG","launch")
             val tabData = projectRepository.getTabList()
             viewModelState.update {
+                Log.e("TAG","update")
                 it.copy(projectTabItemBean = tabData)
             }
         }
     }
+
+    fun getProjectListData(id: Int): Flow<PagingData<HomeListItemBean>> {
+        return Pager(
+            PagingConfig(PAGE_SIZE), pagingSourceFactory = { ProjectSource(id) }
+        ).flow.cachedIn(viewModelScope)
+    }
+
 
 }
